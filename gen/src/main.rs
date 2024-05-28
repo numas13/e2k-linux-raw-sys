@@ -10,7 +10,8 @@ use std::process::Command;
 use std::{env, fs};
 
 #[allow(unused_doc_comments)]
-const LINUX_VERSION: &str = "v5.17";
+//const LINUX_VERSION: &str = "v5.17";
+const LINUX_VERSION: &str = "linux-5.4.193-mcst";
 
 /// Some commonly used features.
 const DEFAULT_FEATURES: &str = "\"general\", \"errno\"";
@@ -189,7 +190,9 @@ fn git_init() {
     if !Path::new("linux/.git").exists() {
         assert!(Command::new("git")
             .arg("clone")
-            .arg("https://github.com/torvalds/linux.git")
+            // XXX: official repo does not have e2k support.
+            //.arg("https://github.com/torvalds/linux.git")
+            .arg("https://git.mentality.rip/OpenE2K/linux.git")
             .arg("--filter=tree:0")
             .arg("--no-checkout")
             .status()
@@ -270,6 +273,7 @@ fn rust_arches(linux_arch: &str) -> &[&str] {
         "arm" => &["arm"],
         "arm64" => &["aarch64"],
         "avr32" => &["avr"],
+        "e2k" => &["e2k64"],
         // hexagon gets build errors; disable it for now
         "hexagon" => &[],
         "mips" => &["mips", "mips64"],
@@ -281,7 +285,7 @@ fn rust_arches(linux_arch: &str) -> &[&str] {
         "alpha" | "cris" | "h8300" | "m68k" | "microblaze" | "mn10300" | "score" | "blackfin"
         | "frv" | "ia64" | "m32r" | "m68knommu" | "parisc" | "sh" | "um" | "xtensa"
         | "unicore32" | "c6x" | "nios2" | "openrisc" | "csky" | "arc" | "nds32" | "metag"
-        | "tile" => &[],
+        | "tile" | "l" => &[],
         _ => panic!("unrecognized arch: {}", linux_arch),
     }
 }

@@ -356,3 +356,19 @@ pub mod ioctl;
 #[cfg(all(target_arch = "x86_64", target_pointer_width = "32"))]
 #[path = "x32/netlink.rs"]
 pub mod netlink;
+#[cfg(feature = "errno")]
+#[cfg(target_arch = "e2k64")]
+#[path = "e2k64/errno.rs"]
+pub mod errno;
+#[cfg(feature = "general")]
+#[cfg(target_arch = "e2k64")]
+#[path = "e2k64/general.rs"]
+pub mod general;
+#[cfg(feature = "ioctl")]
+#[cfg(target_arch = "e2k64")]
+#[path = "e2k64/ioctl.rs"]
+pub mod ioctl;
+#[cfg(feature = "netlink")]
+#[cfg(target_arch = "e2k64")]
+#[path = "e2k64/netlink.rs"]
+pub mod netlink;
