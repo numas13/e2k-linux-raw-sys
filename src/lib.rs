@@ -1270,14 +1270,6 @@ pub mod system;
 #[cfg(all(target_arch = "x86_64", target_pointer_width = "32"))]
 #[path = "x32/xdp.rs"]
 pub mod xdp;
-#[cfg(feature = "ioctl")]
-#[cfg(target_arch = "e2k64")]
-#[path = "e2k64/ioctl.rs"]
-pub mod ioctl;
-#[cfg(feature = "netlink")]
-#[cfg(target_arch = "e2k64")]
-#[path = "e2k64/netlink.rs"]
-pub mod netlink;
 #[cfg(feature = "bootparam")]
 #[cfg(target_arch = "e2k64")]
 #[path = "e2k64/bootparam.rs"]
