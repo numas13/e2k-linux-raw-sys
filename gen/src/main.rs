@@ -10,7 +10,7 @@ use std::process::Command;
 use std::{env, fs};
 
 #[allow(unused_doc_comments)]
-//const LINUX_VERSION: &str = "v5.17";
+//const LINUX_VERSION: &str = "v6.3";
 const LINUX_VERSION: &str = "linux-5.4.193-mcst";
 
 /// Some commonly used features.
@@ -135,9 +135,17 @@ fn main() {
 
                 writeln!(src_lib_rs, "#[cfg(feature = \"{}\")]", mod_name).unwrap();
                 if *rust_arch == "x32" {
-                    writeln!(src_lib_rs, "#[cfg(all(target_arch = \"x86_64\", target_pointer_width = \"32\"))]").unwrap();
+                    writeln!(
+                        src_lib_rs,
+                        "#[cfg(all(target_arch = \"x86_64\", target_pointer_width = \"32\"))]"
+                    )
+                    .unwrap();
                 } else if *rust_arch == "x86_64" {
-                    writeln!(src_lib_rs, "#[cfg(all(target_arch = \"x86_64\", target_pointer_width = \"64\"))]").unwrap();
+                    writeln!(
+                        src_lib_rs,
+                        "#[cfg(all(target_arch = \"x86_64\", target_pointer_width = \"64\"))]"
+                    )
+                    .unwrap();
                 } else {
                     writeln!(src_lib_rs, "#[cfg(target_arch = \"{}\")]", rust_arch).unwrap();
                 }
@@ -166,6 +174,7 @@ fn main() {
     writeln!(cargo_toml, "default = [\"std\", {}]", DEFAULT_FEATURES).unwrap();
     writeln!(cargo_toml, "std = []").unwrap();
     writeln!(cargo_toml, "no_std = []").unwrap();
+    writeln!(cargo_toml, "elf = []").unwrap();
     writeln!(
         cargo_toml,
         "rustc-dep-of-std = [\"core\", \"compiler_builtins\", \"no_std\"]"
@@ -273,10 +282,12 @@ fn rust_arches(linux_arch: &str) -> &[&str] {
         "arm" => &["arm"],
         "arm64" => &["aarch64"],
         "avr32" => &["avr"],
+        "csky" => &["csky"],
         "e2k" => &["e2k64"],
         // hexagon gets build errors; disable it for now
         "hexagon" => &[],
-        "mips" => &["mips", "mips64"],
+        "loongarch" => &["loongarch64"],
+        "mips" => &["mips", "mips64", "mips32r6", "mips64r6"],
         "powerpc" => &["powerpc", "powerpc64"],
         "riscv" => &["riscv32", "riscv64"],
         "s390" => &["s390x"],
@@ -284,7 +295,7 @@ fn rust_arches(linux_arch: &str) -> &[&str] {
         "x86" => &["x86", "x86_64", "x32"],
         "alpha" | "cris" | "h8300" | "m68k" | "microblaze" | "mn10300" | "score" | "blackfin"
         | "frv" | "ia64" | "m32r" | "m68knommu" | "parisc" | "sh" | "um" | "xtensa"
-        | "unicore32" | "c6x" | "nios2" | "openrisc" | "csky" | "arc" | "nds32" | "metag"
+        | "unicore32" | "c6x" | "nios2" | "openrisc" | "arc" | "nds32" | "metag"
         | "tile" | "l" => &[],
         _ => panic!("unrecognized arch: {}", linux_arch),
     }
@@ -316,6 +327,10 @@ fn run_bindgen(
         })
         .array_pointers_in_arguments(true)
         .derive_debug(true)
+        .sort_semantically(true)
+        .blocklist_item("^__UAPI_DEF_.*")
+        .blocklist_item("BITS_PER_LONG")
+        .blocklist_item("__BITS_PER_LONG")
         .clang_arg(&format!("--target={}", clang_target))
         .clang_arg("-DBITS_PER_LONG=(__SIZEOF_LONG__*__CHAR_BIT__)")
         .clang_arg("-nostdinc")
@@ -325,11 +340,23 @@ fn run_bindgen(
         .clang_arg("include")
         .blocklist_item("NULL");
 
-    // Avoid duplicating ioctl names in the `general` module.
-    if mod_name == "general" {
+    // Avoid duplicating things across multiple modules.
+    if mod_name != "ioctl" {
         for ioctl in BufReader::new(File::open("ioctl/generated.txt").unwrap()).lines() {
             builder = builder.blocklist_item(ioctl.unwrap());
         }
+    }
+    if mod_name != "general" {
+        builder = builder.blocklist_item("^LINUX_VERSION_.*");
+        builder = builder.blocklist_item("__kernel_fd_set");
+        builder = builder.blocklist_item("fds_bits");
+        builder = builder.blocklist_item("__FD_SETSIZE");
+        builder = builder.blocklist_item("__kernel_sighandler_t");
+        builder = builder.blocklist_item("^F_.*");
+        builder = builder.blocklist_item("^O_.*");
+        builder = builder.blocklist_item("__kernel_fsid_t");
+        builder = builder.blocklist_item("^HUGETLB_FLAG_ENCODE_.*");
+        builder = builder.blocklist_item("^RESOLVE_.*");
     }
 
     let bindings = builder
@@ -348,6 +375,10 @@ fn compute_clang_target(rust_arch: &str) -> String {
         format!("i686-unknown-linux")
     } else if rust_arch == "x32" {
         format!("x86_64-unknown-linux-gnux32")
+    } else if rust_arch == "mips32r6" {
+        format!("mipsisa32r6-unknown-linux-gnu")
+    } else if rust_arch == "mips64r6" {
+        format!("mipsisa64r6-unknown-linux-gnuabi64")
     } else {
         format!("{}-unknown-linux", rust_arch)
     }

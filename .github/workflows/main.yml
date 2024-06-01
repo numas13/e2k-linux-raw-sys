@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust: [stable, nightly, 1.48]
+        rust: [stable, nightly, 1.63]
 
     env:
       RUSTFLAGS: -D warnings
@@ -53,8 +53,7 @@ jobs:
         aarch64-unknown-linux-musl
         powerpc64le-unknown-linux-gnu
         armv5te-unknown-linux-gnueabi
-        mipsel-unknown-linux-gnu
-        mips64el-unknown-linux-gnuabi64
+        loongarch64-unknown-linux-gnu
     - run: cargo check --tests -vv
     - run: cargo check --tests -vv --target=x86_64-unknown-linux-musl
     - run: cargo check --tests -vv --target=x86_64-unknown-linux-gnux32
@@ -65,8 +64,7 @@ jobs:
     - run: cargo check --tests -vv --target=aarch64-unknown-linux-musl
     - run: cargo check --tests -vv --target=powerpc64le-unknown-linux-gnu
     - run: cargo check --tests -vv --target=armv5te-unknown-linux-gnueabi
-    - run: cargo check --tests -vv --target=mipsel-unknown-linux-gnu
-    - run: cargo check --tests -vv --target=mips64el-unknown-linux-gnuabi64
+    - run: cargo check --tests -vv --target=loongarch64-unknown-linux-gnu
 
   gen:
     name: Update generated files
@@ -74,6 +72,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository -y 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy main'
         sudo apt install libclang-dev
-        cd gen && cargo run --release
+        cd gen && LD_LIBRARY_PATH=/usr/lib/llvm-19/lib cargo run --release
         git diff --exit-code

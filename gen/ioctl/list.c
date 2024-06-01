@@ -56,13 +56,14 @@ struct sockaddr {
 #include <linux/cciss_ioctl.h>
 #include <linux/cec.h>
 #include <linux/chio.h>
-#include <linux/cm4000_cs.h>
 #include <linux/coda.h>
 #include <linux/cxl_mem.h>
 #include <linux/dma-buf.h>
 #include <linux/dma-heap.h>
 #include <linux/dm-ioctl.h>
-#include <linux/dn.h>
+#if 0 // Temporarily disable linux/ext4.h until Linux 6.4.
+#include <linux/ext4.h>
+#endif
 #include <linux/fb.h>
 #include <linux/f2fs.h>
 #include <linux/fiemap.h>
@@ -95,7 +96,7 @@ struct sockaddr {
 #include <linux/joystick.h>
 #include <linux/kd.h>
 #include <linux/kcov.h>
-#if !defined(__arm__) && !defined(__powerpc64__) && !defined(__riscv) // various errors
+#if !defined(__arm__) && !defined(__loongarch__) && !defined(__powerpc64__) && !defined(__riscv) && !defined(__csky__)// various errors
 #include <linux/kvm.h>
 #endif
 #include <linux/lirc.h>
@@ -103,7 +104,6 @@ struct sockaddr {
 #include <linux/matroxfb.h>
 #include <linux/media.h>
 #include <linux/mei.h>
-#include <linux/meye.h>
 #include <linux/mmtimer.h>
 #include <linux/msdos_fs.h>
 #include <linux/mtio.h>
@@ -174,6 +174,37 @@ struct sockaddr {
 #ifdef __powerpc64__
 typedef __kernel_loff_t loff_t;
 #endif
+
+// Temporarily define these ext4 ioctl codes manually until Linux 6.4.
+#define EXT4_IOC32_GETRSVSZ          _IOR('f', 5, int)
+#define EXT4_IOC32_GETVERSION        _IOR('f', 3, int)
+#define EXT4_IOC32_GETVERSION_OLD    FS_IOC32_GETVERSION
+#define EXT4_IOC32_GROUP_ADD         _IOW('f', 8, struct compat_ext4_new_group_input)
+#define EXT4_IOC32_GROUP_EXTEND      _IOW('f', 7, unsigned int)
+#define EXT4_IOC32_SETRSVSZ          _IOW('f', 6, int)
+#define EXT4_IOC32_SETVERSION        _IOW('f', 4, int)
+#define EXT4_IOC32_SETVERSION_OLD    FS_IOC32_SETVERSION
+#define EXT4_IOC_ALLOC_DA_BLKS       _IO('f', 12)
+#define EXT4_IOC_CHECKPOINT          _IOW('f', 43, __u32)
+#define EXT4_IOC_CLEAR_ES_CACHE      _IO('f', 40)
+#define EXT4_IOC_GET_ES_CACHE        _IOWR('f', 42, struct fiemap)
+#define EXT4_IOC_GETFSUUID           _IOR('f', 44, struct fsuuid)
+#define EXT4_IOC_GETRSVSZ            _IOR('f', 5, long)
+#define EXT4_IOC_GETSTATE            _IOW('f', 41, __u32)
+#define EXT4_IOC_GETVERSION          _IOR('f', 3, long)
+#define EXT4_IOC_GETVERSION_OLD      FS_IOC_GETVERSION
+#define EXT4_IOC_GROUP_ADD           _IOW('f', 8, struct ext4_new_group_input)
+#define EXT4_IOC_GROUP_EXTEND        _IOW('f', 7, unsigned long)
+#define EXT4_IOC_MIGRATE             _IO('f', 9)
+#define EXT4_IOC_MOVE_EXT            _IOWR('f', 15, struct move_extent)
+#define EXT4_IOC_PRECACHE_EXTENTS    _IO('f', 18)
+#define EXT4_IOC_RESIZE_FS           _IOW('f', 16, __u64)
+#define EXT4_IOC_SETFSUUID           _IOW('f', 44, struct fsuuid)
+#define EXT4_IOC_SETRSVSZ            _IOW('f', 6, long)
+#define EXT4_IOC_SETVERSION          _IOW('f', 4, long)
+#define EXT4_IOC_SETVERSION_OLD      FS_IOC_SETVERSION
+#define EXT4_IOC_SHUTDOWN            _IOR('X', 125, __u32)
+#define EXT4_IOC_SWAP_BOOT           _IO('f', 17)
 
 void entry(const char *s);
 
@@ -340,6 +371,23 @@ void list(void) {
     IOCTL_REQUEST(BLKROTATIONAL);
     IOCTL_REQUEST(BLKZEROOUT);
 
+    IOCTL_REQUEST(FIEMAP_MAX_OFFSET);
+    IOCTL_REQUEST(FIEMAP_FLAG_SYNC);
+    IOCTL_REQUEST(FIEMAP_FLAG_XATTR);
+    IOCTL_REQUEST(FIEMAP_FLAG_CACHE);
+    IOCTL_REQUEST(FIEMAP_FLAGS_COMPAT);
+    IOCTL_REQUEST(FIEMAP_EXTENT_LAST);
+    IOCTL_REQUEST(FIEMAP_EXTENT_UNKNOWN);
+    IOCTL_REQUEST(FIEMAP_EXTENT_DELALLOC);
+    IOCTL_REQUEST(FIEMAP_EXTENT_ENCODED);
+    IOCTL_REQUEST(FIEMAP_EXTENT_DATA_ENCRYPTED);
+    IOCTL_REQUEST(FIEMAP_EXTENT_NOT_ALIGNED);
+    IOCTL_REQUEST(FIEMAP_EXTENT_DATA_INLINE);
+    IOCTL_REQUEST(FIEMAP_EXTENT_DATA_TAIL);
+    IOCTL_REQUEST(FIEMAP_EXTENT_UNWRITTEN);
+    IOCTL_REQUEST(FIEMAP_EXTENT_MERGED);
+    IOCTL_REQUEST(FIEMAP_EXTENT_SHARED);
+
     // Userfaultfd ioctls.
     IOCTL_REQUEST(UFFDIO_REGISTER);
     IOCTL_REQUEST(UFFDIO_UNREGISTER);
@@ -453,6 +501,23 @@ void list(void) {
     IOCTL_REQUEST(SIOCSRARP);
     IOCTL_REQUEST(SIOCGIFMAP);
     IOCTL_REQUEST(SIOCSIFMAP);
+    IOCTL_REQUEST(SIOCRTMSG);
+    IOCTL_REQUEST(SIOCSIFNAME);
+    IOCTL_REQUEST(SIOCGIFINDEX);
+    IOCTL_REQUEST(SIOGIFINDEX);
+    IOCTL_REQUEST(SIOCSIFPFLAGS);
+    IOCTL_REQUEST(SIOCGIFPFLAGS);
+    IOCTL_REQUEST(SIOCDIFADDR);
+    IOCTL_REQUEST(SIOCSIFHWBROADCAST);
+    IOCTL_REQUEST(SIOCGIFCOUNT);
+    IOCTL_REQUEST(SIOCGIFBR);
+    IOCTL_REQUEST(SIOCSIFBR);
+    IOCTL_REQUEST(SIOCGIFTXQLEN);
+    IOCTL_REQUEST(SIOCSIFTXQLEN);
+    IOCTL_REQUEST(SIOCADDDLCI);
+    IOCTL_REQUEST(SIOCDELDLCI);
+    IOCTL_REQUEST(SIOCDEVPRIVATE);
+    IOCTL_REQUEST(SIOCPROTOPRIVATE);
 
     IOCTL_REQUEST(FIBMAP);
     IOCTL_REQUEST(FIGETBSZ);
@@ -477,6 +542,45 @@ void list(void) {
     IOCTL_REQUEST(FS_IOC_GETFSLABEL);
     IOCTL_REQUEST(FS_IOC_SETFSLABEL);
 
+    IOCTL_REQUEST(EXT4_IOC_GETVERSION);
+    IOCTL_REQUEST(EXT4_IOC_SETVERSION);
+    IOCTL_REQUEST(EXT4_IOC_GETVERSION_OLD);
+    IOCTL_REQUEST(EXT4_IOC_SETVERSION_OLD);
+    IOCTL_REQUEST(EXT4_IOC_GETRSVSZ);
+    IOCTL_REQUEST(EXT4_IOC_SETRSVSZ);
+    IOCTL_REQUEST(EXT4_IOC_GROUP_EXTEND);
+#if 0 // Temporarily disable until Linux 6.4.
+    IOCTL_REQUEST(EXT4_IOC_GROUP_ADD);
+#endif
+    IOCTL_REQUEST(EXT4_IOC_MIGRATE);
+    IOCTL_REQUEST(EXT4_IOC_ALLOC_DA_BLKS);
+#if 0 // Temporarily disable until Linux 6.4.
+    IOCTL_REQUEST(EXT4_IOC_MOVE_EXT);
+#endif
+    IOCTL_REQUEST(EXT4_IOC_RESIZE_FS);
+    IOCTL_REQUEST(EXT4_IOC_SWAP_BOOT);
+    IOCTL_REQUEST(EXT4_IOC_PRECACHE_EXTENTS);
+    IOCTL_REQUEST(EXT4_IOC_CLEAR_ES_CACHE);
+    IOCTL_REQUEST(EXT4_IOC_GETSTATE);
+    IOCTL_REQUEST(EXT4_IOC_GET_ES_CACHE);
+    IOCTL_REQUEST(EXT4_IOC_CHECKPOINT);
+#if 0 // Temporarily disable until Linux 6.4.
+    IOCTL_REQUEST(EXT4_IOC_GETFSUUID);
+    IOCTL_REQUEST(EXT4_IOC_SETFSUUID);
+#endif
+    IOCTL_REQUEST(EXT4_IOC_SHUTDOWN);
+
+    IOCTL_REQUEST(EXT4_IOC32_GETVERSION);
+    IOCTL_REQUEST(EXT4_IOC32_SETVERSION);
+    IOCTL_REQUEST(EXT4_IOC32_GETRSVSZ);
+    IOCTL_REQUEST(EXT4_IOC32_SETRSVSZ);
+    IOCTL_REQUEST(EXT4_IOC32_GROUP_EXTEND);
+#if 0 // Temporarily disable until Linux 6.4.
+    IOCTL_REQUEST(EXT4_IOC32_GROUP_ADD);
+#endif
+    IOCTL_REQUEST(EXT4_IOC32_GETVERSION_OLD);
+    IOCTL_REQUEST(EXT4_IOC32_SETVERSION_OLD);
+
     IOCTL_REQUEST(VIDIOC_SUBDEV_QUERYSTD);
     IOCTL_REQUEST(AUTOFS_DEV_IOCTL_CLOSEMOUNT);
     IOCTL_REQUEST(LIRC_SET_SEND_CARRIER);
@@ -493,14 +597,13 @@ void list(void) {
     IOCTL_REQUEST(ENI_SETMULT);
     IOCTL_REQUEST(RIO_GET_EVENT_MASK);
     IOCTL_REQUEST(LIRC_GET_MAX_TIMEOUT);
-#if !defined(__arm__) && !defined(__powerpc64__) && !defined(__riscv)
+#if !defined(__arm__) && !defined(__loongarch__) && !defined(__powerpc64__) && !defined(__riscv) && !defined(__csky__)
 #if 0 // needs `struct kvm_cpuid2`
     IOCTL_REQUEST(KVM_GET_SUPPORTED_CPUID);
 #endif
     IOCTL_REQUEST(KVM_SET_BOOT_CPU_ID);
     IOCTL_REQUEST(KVM_SET_MP_STATE);
     IOCTL_REQUEST(KVM_GET_MP_STATE);
-    IOCTL_REQUEST(KVM_SET_MEMORY_REGION);
     IOCTL_REQUEST(KVM_GET_API_VERSION);
     IOCTL_REQUEST(KVM_S390_GET_SKEYS);
 #if 0 // needs `struct kvm_create_spapr_tce_64`
@@ -562,7 +665,9 @@ void list(void) {
     IOCTL_REQUEST(KVM_SET_FPU);
     IOCTL_REQUEST(KVM_KVMCLOCK_CTRL);
 #ifdef KVM_GET_SREGS2
+#if 0 // needs `struct kvm_xcrs`
     IOCTL_REQUEST(KVM_GET_SREGS2);
+#endif
 #endif
     IOCTL_REQUEST(KVM_PPC_GET_PVINFO);
     IOCTL_REQUEST(KVM_X86_GET_MCE_CAP_SUPPORTED);
@@ -691,7 +796,9 @@ void list(void) {
 #endif
     IOCTL_REQUEST(KVM_SET_IRQCHIP);
 #ifdef KVM_SET_SREGS2
+#if 0 // needs `struct kvm_xcrs`
     IOCTL_REQUEST(KVM_SET_SREGS2);
+#endif
 #endif
     IOCTL_REQUEST(KVM_SIGNAL_MSI);
     IOCTL_REQUEST(KVM_GET_VCPU_MMAP_SIZE);
@@ -926,7 +1033,6 @@ void list(void) {
     IOCTL_REQUEST(BTRFS_IOC_SPACE_INFO);
     IOCTL_REQUEST(VIDIOC_SUBDEV_ENUM_FRAME_SIZE);
     IOCTL_REQUEST(ND_IOCTL_VENDOR);
-    IOCTL_REQUEST(SIOCSNETADDR);
     IOCTL_REQUEST(SCIF_VREADFROM);
     IOCTL_REQUEST(BTRFS_IOC_TRANS_START);
     IOCTL_REQUEST(INOTIFY_IOC_SETNEXTWD);
@@ -945,7 +1051,6 @@ void list(void) {
     IOCTL_REQUEST(RTC_PLL_GET);
     IOCTL_REQUEST(RIO_CM_EP_GET_LIST);
     IOCTL_REQUEST(USBDEVFS_DISCSIGNAL);
-    IOCTL_REQUEST(OSIOCSNETADDR);
     IOCTL_REQUEST(LIRC_GET_MIN_TIMEOUT);
     IOCTL_REQUEST(SWITCHTEC_IOCTL_EVENT_SUMMARY_LEGACY);
     IOCTL_REQUEST(DM_TARGET_MSG);
@@ -1037,7 +1142,6 @@ void list(void) {
     IOCTL_REQUEST(NVME_IOCTL_ADMIN64_CMD);
     IOCTL_REQUEST(VHOST_SET_OWNER);
     IOCTL_REQUEST(RIO_ALLOC_DMA);
-    IOCTL_REQUEST(F2FS_IOC_ABORT_VOLATILE_WRITE);
     IOCTL_REQUEST(RIO_CM_CHAN_ACCEPT);
     IOCTL_REQUEST(I2OHRTGET);
     IOCTL_REQUEST(ATM_SETCIRANGE);
@@ -1273,7 +1377,6 @@ void list(void) {
     IOCTL_REQUEST(SWITCHTEC_IOCTL_FLASH_PART_INFO);
     IOCTL_REQUEST(FW_CDEV_IOC_SEND_PHY_PACKET);
     IOCTL_REQUEST(NBD_SET_FLAGS);
-    IOCTL_REQUEST(SIOCGNETADDR);
     IOCTL_REQUEST(VFIO_DEVICE_GET_REGION_INFO);
     IOCTL_REQUEST(REISERFS_IOC_UNPACK);
     IOCTL_REQUEST(FW_CDEV_IOC_REMOVE_DESCRIPTOR);
@@ -1303,7 +1406,6 @@ void list(void) {
     IOCTL_REQUEST(PHN_GETREG);
     IOCTL_REQUEST(I2OSWDL);
     IOCTL_REQUEST(VBG_IOCTL_VMMDEV_REQUEST_BIG);
-    IOCTL_REQUEST(OSIOCGNETADDR);
     IOCTL_REQUEST(JSIOCGBUTTONS);
     IOCTL_REQUEST(VFIO_IOMMU_ENABLE);
     IOCTL_REQUEST(DM_DEV_RENAME);
@@ -1387,7 +1489,6 @@ void list(void) {
     IOCTL_REQUEST(VIDIOC_G_DV_TIMINGS);
     IOCTL_REQUEST(TUNSETIFINDEX);
     IOCTL_REQUEST(CCISS_SETINTINFO);
-    IOCTL_REQUEST(CM_IOSDBGLVL);
     IOCTL_REQUEST(RTC_VL_CLR);
     IOCTL_REQUEST(VIDIOC_REQBUFS);
     IOCTL_REQUEST(USBDEVFS_REAPURBNDELAY32);
@@ -1523,7 +1624,6 @@ void list(void) {
     IOCTL_REQUEST(VFIO_SET_IOMMU);
     IOCTL_REQUEST(VIDIOC_S_MODULATOR);
     IOCTL_REQUEST(TUNGETFILTER);
-    IOCTL_REQUEST(MEYEIOC_SYNC);
     IOCTL_REQUEST(CCISS_SETNODENAME);
     IOCTL_REQUEST(FBIO_GETCONTROL2);
     IOCTL_REQUEST(TUNSETDEBUG);
@@ -1812,7 +1912,6 @@ void list(void) {
     IOCTL_REQUEST(VIDIOC_STREAMOFF);
     IOCTL_REQUEST(VDUSE_DESTROY_DEV);
     IOCTL_REQUEST(FDGETFDCSTAT);
-    IOCTL_REQUEST(CM_IOCGATR);
     IOCTL_REQUEST(VIDIOC_S_PRIORITY);
     IOCTL_REQUEST(SNAPSHOT_FREEZE);
     IOCTL_REQUEST(VIDIOC_ENUMINPUT);
