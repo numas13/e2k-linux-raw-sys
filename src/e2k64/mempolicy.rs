@@ -133,3 +133,36 @@ pub const EOWNERDEAD: u32 = 130;
 pub const ENOTRECOVERABLE: u32 = 131;
 pub const ERFKILL: u32 = 132;
 pub const EHWPOISON: u32 = 133;
+pub const MPOL_F_STATIC_NODES: u32 = 32768;
+pub const MPOL_F_RELATIVE_NODES: u32 = 16384;
+pub const MPOL_MODE_FLAGS: u32 = 49152;
+pub const MPOL_F_NODE: u32 = 1;
+pub const MPOL_F_ADDR: u32 = 2;
+pub const MPOL_F_MEMS_ALLOWED: u32 = 4;
+pub const MPOL_MF_STRICT: u32 = 1;
+pub const MPOL_MF_MOVE: u32 = 2;
+pub const MPOL_MF_MOVE_ALL: u32 = 4;
+pub const MPOL_MF_LAZY: u32 = 8;
+pub const MPOL_MF_INTERNAL: u32 = 16;
+pub const MPOL_MF_VALID: u32 = 7;
+pub const MPOL_F_SHARED: u32 = 1;
+pub const MPOL_F_LOCAL: u32 = 2;
+pub const MPOL_F_MOF: u32 = 8;
+pub const MPOL_F_MORON: u32 = 16;
+pub const MPOL_DEFAULT: _bindgen_ty_1 = _bindgen_ty_1::MPOL_DEFAULT;
+pub const MPOL_PREFERRED: _bindgen_ty_1 = _bindgen_ty_1::MPOL_PREFERRED;
+pub const MPOL_BIND: _bindgen_ty_1 = _bindgen_ty_1::MPOL_BIND;
+pub const MPOL_INTERLEAVE: _bindgen_ty_1 = _bindgen_ty_1::MPOL_INTERLEAVE;
+pub const MPOL_LOCAL: _bindgen_ty_1 = _bindgen_ty_1::MPOL_LOCAL;
+pub const MPOL_MAX: _bindgen_ty_1 = _bindgen_ty_1::MPOL_MAX;
+#[repr(u32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum _bindgen_ty_1 {
+MPOL_DEFAULT = 0,
+MPOL_PREFERRED = 1,
+MPOL_BIND = 2,
+MPOL_INTERLEAVE = 3,
+MPOL_LOCAL = 4,
+MPOL_MAX = 5,
+}

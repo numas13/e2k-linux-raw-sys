@@ -278,6 +278,10 @@ fn make_headers_install(linux_arch: &str, linux_headers: &Path) {
 }
 
 fn rust_arches(linux_arch: &str) -> &[&str] {
+//    return match linux_arch {
+//        "e2k" => &["e2k64"],
+//        _ => &[],
+//    };
     match linux_arch {
         "arm" => &["arm"],
         "arm64" => &["aarch64"],

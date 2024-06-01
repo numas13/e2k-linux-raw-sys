@@ -22,6 +22,9 @@
 #include <linux/reboot.h>
 #include <linux/resource.h>
 #include <linux/sched.h>
+#ifdef __e2k__
+#include <asm-generic/signal-defs.h>
+#endif
 #include <linux/signal.h>
 #include <linux/stat.h>
 #include <linux/termios.h>
@@ -230,7 +233,7 @@ struct user_desc {
 // that its fourth argument be the size of the kernel's internal `sigset_t`
 // type. So we define our own.
 
-#if defined(__i386__) || defined(__x86_64__) || defined(__s390x__) || defined(__arm__) || defined(__loongarch__)
+#if defined(__i386__) || defined(__x86_64__) || defined(__s390x__) || defined(__arm__) || defined(__loongarch__) || defined(__e2k__)
 #define _NSIG 64
 #endif
 
